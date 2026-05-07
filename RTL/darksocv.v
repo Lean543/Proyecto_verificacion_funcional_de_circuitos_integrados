@@ -29,7 +29,10 @@
  */
 
 `timescale 1ns / 1ps
-`include "../rtl/config.vh"
+`include "config.vh"
+`include "darkuart.v"
+`include "darkpll.v"
+`include "darkriscv.v"
 
 module darksocv
 (

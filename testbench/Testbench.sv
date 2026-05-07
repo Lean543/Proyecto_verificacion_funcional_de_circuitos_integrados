@@ -2,40 +2,50 @@
 // or browse Examples
 `include "darksocv.v"
 
-module testbench ();
-    reg [15:0] [31:0] REGS;
-  	wire        XCLK;      // external clock
-    wire        XRES;      // external reset
-  
-  
-  for(i=0;i!=16;i=i+1) assign REGS[i] = DUT.core0.REGS[i];
-  
- darksocv DUT (
-  .XCLK(XCLK),      // external clock
-  .XRES(XRES)      // external reset
+module testbench();
 
-);
-  
-initial begin
+    reg  XCLK;
+    reg  XRES;
+
+    darksocv DUT (
+        .XCLK    (XCLK),
+        .XRES    (XRES)
+    );
+
+    // registros del procesador
+    wire [31:0] x0  = DUT.core0.REGS[0];
+    wire [31:0] x1  = DUT.core0.REGS[1];
+    wire [31:0] x2  = DUT.core0.REGS[2];
+    wire [31:0] x3  = DUT.core0.REGS[3];
+    wire [31:0] x4  = DUT.core0.REGS[4];
+    wire [31:0] x5  = DUT.core0.REGS[5];
+    wire [31:0] x6  = DUT.core0.REGS[6];
+    wire [31:0] x7  = DUT.core0.REGS[7];
+    wire [31:0] x8  = DUT.core0.REGS[8];
+    wire [31:0] x9  = DUT.core0.REGS[9];
+    wire [31:0] x10 = DUT.core0.REGS[10];
+    wire [31:0] x11 = DUT.core0.REGS[11];
+    wire [31:0] x12 = DUT.core0.REGS[12];
+    wire [31:0] x13 = DUT.core0.REGS[13];
+    wire [31:0] x14 = DUT.core0.REGS[14];
+    wire [31:0] x15 = DUT.core0.REGS[15];
+
+    initial begin
         $dumpfile("resultados.vcd");
-  $dumpvars(1, testbench);
-    end  
-  
-  initial begin
-    XCLK = 1'b1;
-    XRES = 0;
-    
-    #10 XRES = 1;
-    #10000 XRES = 0;
-    
-    
-  
-  #100 $finish;
-  end
-  
+        $dumpvars(0, testbench);
+    end
 
-always begin
-        #1 XCLK = !XCLK;
-  end  
+    always #1 XCLK = ~XCLK;
+
+    initial begin
+        XCLK = 1'b1;
+      	XRES = 1'b0; // es activo en bajo
+
+        #1000;
+
+        XRES = 1'b1;
+
+        #500 $finish;
+    end
 
 endmodule
