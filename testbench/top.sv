@@ -12,10 +12,10 @@ module top();
         .XRES    (XRES)
     );
 
-    initial begin
-        $dumpfile("resultados.vcd");
-        $dumpvars(0, testbench);
-    end
+    //initial begin
+    //   $dumpfile("resultados.vcd");
+    //   $dumpvars(0, testbench);
+    //end
 
     always #1 XCLK = ~XCLK;
 
