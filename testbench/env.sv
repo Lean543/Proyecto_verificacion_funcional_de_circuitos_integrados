@@ -3,7 +3,7 @@ class env;
     monitor monitor_obj;
     scoreboard scoreboard_obj;
 
-    function new (virtual ifc_adder ifc_adder_obj);
+    function new (virtual ifc_riscv ifc_riscv_obj);
         $display("Ambiente: Construyendo el ambiente y los componentes");
         scoreboard_obj = new();
         driver_obj = new(ifc_riscv_obj, scoreboard_obj);
