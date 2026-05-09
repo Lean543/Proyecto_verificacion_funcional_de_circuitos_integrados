@@ -2,7 +2,7 @@
 // or browse Examples
 `include "darksocv.v"
 
-module testbench();
+module top();
 
    	logic  XCLK;
     logic  XRES;
