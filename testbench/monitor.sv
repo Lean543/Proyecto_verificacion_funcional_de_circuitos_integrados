@@ -12,16 +12,31 @@ class monitor;
         forever begin
           @(posedge ifc_riscv_obj.clk);
           @(negedge ifc_riscv_obj.clk); //Esperamos al negedge después del posedge para evitar "race conditions"
-          integer error = 0;
+            integer error = 0;
+          
+          	rd = scoreboard_obj.return_result();
+          	rd_number = scoreboard_obj.return_rd();
+//           	rs1 = scoreboard_obj.calc_rs1_value;
+// 			rd_number = scoreboard_obj.return_rs1_number;
+//           	rs2 = scoreboard_obj.calc_rs2_value;
+// 			rd_number = scoreboard_obj.return_rs2_number;
        
-          	for (int i = 0; i < 16; i++) begin
-              if (scoreboard_obj.return_out_value(i) != ifc_riskv_obj.regs[i]) begin
-                $display("ERROR: x%0d esperado=%h, obtenido=%h", i, scoreboard_obj.return_out_value(i), ifc_riskv_obj.regs[i]);
-              	error = 1;
-              end
+            if (rd != ifc_riskv_obj.regs[rd_number]) begin
+                $display("ERROR rd: x%0d esperado=%h, obtenido=%h", rd_number, rd, ifc_riskv_obj.regs[rd_number]);
+                error = 1;	
             end
           
-          if (!error) $display("Monitor-checker: Los resultados de la instrucción coinciden");
+//           	if (scoreboard_obj.calc_rs1_value != ifc_riskv_obj.regs[rs1number]) begin
+//               $display("ERROR rs1: x%0d esperado=%h, obtenido=%h", rs1number, scoreboard_obj.calc_rs1_value, ifc_riskv_obj.regs[rs1number]);
+//               	error = 1;	
+//             end
+          
+//           	if (scoreboard_obj.calc_rd_value != ifc_riskv_obj.regs[rdnumber]) begin
+//               $display("ERROR rs2: x%0d esperado=%h, obtenido=%h", rs2number, scoreboard_obj.calc_rs2_value, ifc_riskv_obj.regs[rs2number]);
+//               	error = 1;	
+//             end
+          
+          	if (!error) $display("Monitor-checker: Los resultados de la instrucción actual coinciden");
         end
     endtask
 
