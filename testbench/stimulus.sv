@@ -17,6 +17,12 @@ class stimulus;
     funct7 inside {7'b0000000, 7'b0100000};
   }
   
+  constraint lower_registers {
+    rs1[4] == 1'b0;
+    rs2[4] == 1'b0;
+    rd[4]  == 1'b0;
+  }
+
   constraint valid_funct3 {
     if (funct7 == 7'b0100000) funct3 inside {3'b000, 3'b101};
     // si funct7 == 0000000, funct3 es libre (cualquier valor de 3 bits)
