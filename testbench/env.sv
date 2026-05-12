@@ -5,7 +5,7 @@ class env;
 
     function new (virtual ifc_riscv ifc_riscv_obj);
         $display("Ambiente: Construyendo el ambiente y los componentes");
-        scoreboard_obj = new();
+        scoreboard_obj = new(ifc_riscv_obj);
         driver_obj = new(ifc_riscv_obj, scoreboard_obj);
         monitor_obj = new(ifc_riscv_obj, scoreboard_obj);
         fork
