@@ -10,6 +10,7 @@ import uvm_pkg::*;
 `include "sequencer.sv"
 
 `include "driver.sv"
+`include "analysis_item.sv"
 `include "monitor.sv"
 `include "subscriber.sv"
 `include "scoreboard.sv"

@@ -7,9 +7,11 @@ module top;
     logic clk;
     logic res;
   	logic idle_dbg;
+  	logic [31:0] addr;
+  	logic [31:0] data;
 
     ifc_riscv ifc_riscv_obj(clk);
-
+	
   	//instacia del DUT
     darksocv DUT (
         .XCLK(clk),
@@ -28,28 +30,34 @@ module top;
     endgenerate
 
     assign idle_dbg = DUT.core0.IDLE;
-    assign ifc_riscv_obj.activeprocesor = idle_dbg;
-
+    assign ifc_riscv_obj.idleproc = idle_dbg;
+  
+  	assign addr = DUT.core0.IADDR;
+    assign ifc_riscv_obj.addr = addr;
+  
+  	assign data = DUT.core0.IDATA;
+    assign ifc_riscv_obj.data = data;
+	
   	//estimulos para el procesador que se envian por la interfaz virtual
     initial begin
-
+      
       	$dumpfile("dump.vcd");
         $dumpvars(0, top);
 		$display("VCD enabled at time %0t", $time);
-		// #0; // asegura que $dumpvars se registre antes de avanzar
+		// #0; // asegura que $dumpvars se registre antes de avanzar      
         clk = 1'b1;
         res = 1'b1;
 
         #10;
         res = 1'b0;
 
-        #700;
+        #1000;
         res = 1'b1;
 
     end
 
     initial begin
-
+		
       	uvm_config_db#(virtual ifc_riscv)::set(null, "*", "ifc_riscv_obj", ifc_riscv_obj); //da un acceso a la interfaz a cualquier componente (*)
 		//Ejecuta el test que se indica. Esto lo logra porque el test se ingresa en la fábrica.
       	//Ingresamos la interfaz virtual a la base de datos, así cualquier componente puede acceder a ella

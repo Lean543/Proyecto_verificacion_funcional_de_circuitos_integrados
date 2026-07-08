@@ -38,7 +38,7 @@ class riscv_env extends uvm_env;
 
       	agent.monitor.ap.connect(subscriber.analysis_export); //conexion monitor con suscriber mediante el puerto analysis_export
 
-      	scoreboard.checker_port.connect(checker_obj.analysis_export); //conexion checker con scoreboard mediante el puerto analysis_export
+      	scoreboard.checker_port.connect(checker_obj.checker_port); //conexion checker con scoreboard mediante el puerto analysis_export
 	
         checker_obj.scoreboard = scoreboard; //para instancia del scoreboard en el checker
 

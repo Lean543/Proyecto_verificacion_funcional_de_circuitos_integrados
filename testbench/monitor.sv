@@ -1,83 +1,61 @@
-class riscv_monitor extends uvm_monitor; //maneja las conexiones con otros componentes y la sincronizacion
-	  //Registrarse en la fábrica
-    `uvm_component_utils(riscv_monitor)
+class riscv_monitor extends uvm_monitor;
+  `uvm_component_utils(riscv_monitor)
 
-  	uvm_analysis_port #(riscv_item) ap; //instancia de la conexion al scoreboard y suscriber
+  uvm_analysis_port #(analysis_item) ap;
+
+  virtual ifc_riscv ifc_riscv_obj;
   
-  	virtual ifc_riscv ifc_riscv_obj; //instacia de la interfaz virtual
+  logic [31:0] lastaddr;
 
-    int mem_file;
-    int total_instructions;
-    int complete_count;
+  function new(string name = "riscv_monitor", uvm_component parent = null);
+    super.new(name, parent);
+    ap = new("ap", this);
+  endfunction
 
-    logic [31:0] instruction;
-    logic [31:0] tmp;
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
 
-  	function new(string name = "riscv_monitor", uvm_component parent = null); //constructor del monitor
-      	super.new(name,parent); //llama al constructor de la clase padre
+    if (!uvm_config_db#(virtual ifc_riscv)::get(
+          this, "", "ifc_riscv_obj", ifc_riscv_obj))
+      `uvm_fatal(get_type_name(), "No se pudo obtener ifc_riscv_obj")
+  endfunction
 
-      	ap = new("ap",this); //constructor del cable conexion ap
-    endfunction
-  
-  	function void build_phase(uvm_phase phase);
 
-      	super.build_phase(phase); //llama a la funcion build_phase de la clase padre
- 
-      	if(!uvm_config_db#(virtual ifc_riscv)::get(this, "", "ifc_riscv_obj", ifc_riscv_obj)) //comprobacion de la conexion con la interfaz virtual		
-          	`uvm_fatal(get_type_name(), "No se pudo obtener la interfaz")
+  task run_phase(uvm_phase phase);
 
-    endfunction
+    analysis_item item;
 
-    task run_phase(uvm_phase phase); //se llama sola cuando empieza la simulacion
+    // Espera a que el procesador salga de reset/idle
+    //@(negedge ifc_riscv_obj.idleproc);
+    wait (ifc_riscv_obj.addr != 32'h0);
+    //@(negedge ifc_riscv_obj.idleproc);
 
-      	riscv_item item;
-      
-     	@(negedge ifc_riscv_obj.activeprocesor); //queda pegado aqui hasta que el idle del procesador se desactive
-      	#3; //retardo para que termine la primera instruccion
-      
-        mem_file = $fopen("darksocv.mem","r");	
+    //pipeline delay
+    //repeat (1) @(posedge ifc_riscv_obj.clk);
+    lastaddr = 32'h0;
 
-        if(!mem_file)
-          	`uvm_fatal(get_type_name(), "No se pudo abrir darksocv.mem")
+    while (ifc_riscv_obj.addr != 32'h0) begin
 
-        total_instructions = 0;
+        @(posedge ifc_riscv_obj.clk);
 
-        while(!$feof(mem_file)) begin
-            if($fscanf(mem_file,"%h",tmp)==1)
-                total_instructions++;
-        end //recuento de instrucciones detectadas luego de que el driver cerró el .mem
+        if (ifc_riscv_obj.addr != lastaddr) begin
 
-        $fclose(mem_file);
+            lastaddr = ifc_riscv_obj.addr;
 
-        mem_file = $fopen("darksocv.mem","r");
+            // Esperar a que la ROM entregue la instrucción
+            //@(posedge ifc_riscv_obj.clk);
 
-        complete_count = 0;
+            item = analysis_item::type_id::create("item");
+            item.instruction = ifc_riscv_obj.data;
+          	
+          	$display("%0t PC_tiemporeal_core=%d", $time,ifc_riscv_obj.addr);
 
-      	`uvm_info(get_type_name(), $sformatf("%0d instrucciones encontradas", total_instructions), UVM_LOW)
-
-        while(!$feof(mem_file)) begin
-          
-          	@(posedge ifc_riscv_obj.clk); //para sincronizacion con la interfaz virtual
-
-          	item = riscv_item::type_id::create("item"); //llamada al constructor de un nuevo contenerdor de una instruccion
-
-          	if($fscanf(mem_file,"%h",instruction)==1) begin //si no hay linea en blanco:
-
-                item.instruction = instruction; //pone la instruccion que obtuvo del .mem en el item
-
-                complete_count++;
-
-              	ap.write(item); //manda el item (instruccion) por la conexion al scoreboard y suscriber
-
-            	//`uvm_info(get_type_name(), $sformatf("Instruccion leida: %08h", instruction), UVM_MEDIUM)
-
-            end
+            ap.write(item);
 
         end
-      	`uvm_info(get_type_name(), $sformatf("%0d instrucciones procesadas", complete_count), UVM_LOW)
 
-        $fclose(mem_file);
+    end
 
-    endtask
+  endtask
 
 endclass

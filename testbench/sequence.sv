@@ -10,7 +10,7 @@ class riscv_sequence extends uvm_sequence #(riscv_item); //genera la transacció
 
         riscv_item req;
 
-      	repeat (50) begin //generar un número de instrucciones randomizadas
+      	repeat (400) begin //generar un número de instrucciones randomizadas
 
           	req = riscv_item::type_id::create("req"); //creacion de un nuevo ejercicio
 
@@ -26,7 +26,7 @@ class riscv_sequence extends uvm_sequence #(riscv_item); //genera la transacció
           	finish_item(req); //señala a componentes que terminó un ejercicio
 
         end
-
+      
     endtask
 
 endclass

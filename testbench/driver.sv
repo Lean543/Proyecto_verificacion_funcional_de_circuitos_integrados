@@ -22,11 +22,11 @@ class riscv_driver extends uvm_driver #(riscv_item); //usa get_next_item() / get
 
         if(!instructions_file)
           	`uvm_fatal(get_type_name(), "No se pudo abrir darksocv.mem")
-
+          
         $fwrite(instructions_file,"\n");
 
       	`uvm_info(get_type_name(), "Archivo darksocv.mem abierto", UVM_LOW)
-
+      
 
       	forever begin
           	seq_item_port.get_next_item(req); //recibe y se sincroniza con un ejercicio del sequencer
@@ -34,8 +34,8 @@ class riscv_driver extends uvm_driver #(riscv_item); //usa get_next_item() / get
             $fwrite(instructions_file, "%h\n", req.instruction);
 
             `uvm_info(get_type_name(), $sformatf("Instruccion escrita: %08h", req.instruction), UVM_MEDIUM)
-
-            $fflush(instructions_file); //hace que el archivo darcsov.mem se escriba en la memoria de la pc a como está en ese momento sin
+          
+            $fflush(instructions_file); //hace que el archivo darcsov.mem se escriba en la memoria de la pc a como está en ese momento sin 
             //cerrar el archivo pero provoca warning porque el archivo queda abierto, hay que solucionarlo
           	seq_item_port.item_done(); //manda al sequencer que ya termino el ejercio para que empiece con otro
 
@@ -48,12 +48,12 @@ class riscv_driver extends uvm_driver #(riscv_item); //usa get_next_item() / get
     endtask
 
     /*function void report_phase(uvm_phase phase);
-
+      
         if(instructions_file)
             $fclose(instructions_file);
 
       	`uvm_info(get_type_name(), "Archivo darksocv.mem cerrado", UVM_LOW)
-
+      
       	$system("cat darksocv.mem");
 
     endfunction*/

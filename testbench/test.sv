@@ -32,9 +32,9 @@ class riscv_test extends uvm_test;
       
       	seq.start(env.agent.sequencer); //llama a que se generen ejercicios (instrucciones)
 
-        #2000; //tiempo de simulacion
+        #3000; //tiempo de simulacion
 
-      phase.drop_objection(this); //llama a que termine la simulacion y uvm entre en estado de extract, check y report
+      	phase.drop_objection(this); //llama a que termine la simulacion y uvm entre en estado de extract, check y report
 
     endtask
 

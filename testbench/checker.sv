@@ -2,7 +2,7 @@ class riscv_checker extends uvm_component;
 	//Registrarse en la fábrica
     `uvm_component_utils(riscv_checker)
 
-  	uvm_analysis_imp #(riscv_item, riscv_checker) analysis_export;
+  	uvm_analysis_imp #(analysis_item, riscv_checker) checker_port;
 
     virtual ifc_riscv ifc_riscv_obj; //instancia de la interfaz virtual
 
@@ -15,7 +15,7 @@ class riscv_checker extends uvm_component;
 
       	super.new(name,parent); //llama al constructor de la clase padre
 
-      	analysis_export = new("analysis_export",this); //llama al constructor de la conexion analysis_export
+      	checker_port = new("checker_port",this); //llama al constructor de la conexion analysis_export
 
     endfunction
 
@@ -32,17 +32,25 @@ class riscv_checker extends uvm_component;
 
     endfunction
 
-  	virtual function void write(riscv_item t); //funcion que compara modelo de referencia con registros del core, recibe la instruccion del suscriber en t 
+  	virtual function void write(analysis_item t); //funcion que compara modelo de referencia con registros del core, recibe la instruccion del suscriber en t 
 
         logic [31:0] expected_result;
         logic [4:0] rd_number;
       
         expected_result = t.expected_result;
-		    rd_number       = t.expected_rd;
+		rd_number       = t.expected_rd;
+      	/*$display("%0t x1=%h x2=%h x3=%h x4=%h",
+         $time,
+         ifc_riscv_obj.regs[1],
+         ifc_riscv_obj.regs[2],
+         ifc_riscv_obj.regs[3],
+         ifc_riscv_obj.regs[4]);*/
 
         //expected_result = scoreboard.return_result();
 
         //rd_number = scoreboard.return_rd();
+      	//pipeline delay
+    	//repeat (1) @(posedge ifc_riscv_obj.clk);
 
       	if(expected_result != ifc_riscv_obj.regs[rd_number]) begin //comparacion de los resultados
 
