@@ -20,3 +20,10 @@ import uvm_pkg::*;
 `include "env.sv"
 
 `include "test.sv"
+`include "test_r.sv"
+`include "test_i.sv"
+`include "test_u.sv"
+`include "test_load.sv"
+`include "test_store.sv"
+`include "test_branch.sv"
+`include "test_jump.sv"
