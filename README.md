@@ -67,6 +67,24 @@ o cualquier otro test dirigido, por ejemplo:
 +UVM_TESTNAME=riscv_j_test
 ```
 
+### Test con variación de reloj
+
+```tcl
+vsim +access+r -sv_seed random +UVM_TESTNAME=riscv_store_test +CLK_TEST
+```
+
+### Test con reset durante la ejecución
+
+```tcl
+vsim +access+r -sv_seed random +UVM_TESTNAME=riscv_store_test +RESET_TEST
+```
+
+### Test combinado
+
+```tcl
+vsim +access+r -sv_seed random +UVM_TESTNAME=riscv_store_test +CLK_TEST +RESET_TEST
+```
+
 ## Características implementadas
 
 - Generación aleatoria restringida de instrucciones.
