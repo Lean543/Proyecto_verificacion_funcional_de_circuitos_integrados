@@ -27,8 +27,6 @@ class riscv_item extends uvm_sequence_item;
   	logic [6:0] opcode_u;
 
     logic [31:0] instruction;
-    logic [31:0] expected_result;
-    logic [4:0]  expected_rd;
   
   	int pc;
 	int max_pc;
@@ -41,7 +39,7 @@ class riscv_item extends uvm_sequence_item;
         super.new(name);
     endfunction
           
-    //randomizar los bits de cada todos los conjuntos de bits de toda instruccion    
+    //randomizar los bits de todos los conjuntos de bits de toda instruccion    
     rand  instr_type_e instr_type;
 
     rand bit [4:0] rs1;
@@ -56,14 +54,14 @@ class riscv_item extends uvm_sequence_item;
     rand bit [12:0] imm_b;
   
   	rand bit [19:0] imm_u; // inmediato superior de 20 bits
-  	rand bit u_select; //al ser un bit puede ser 1 o 0 entonces no hay que hace constrain
+  	rand bit u_select; //al ser un bit puede ser 1 o 0 entonces no hay que hacer constrain
   
     rand bit [20:0] imm_j;
   	//Randomizar teniendo en cuenta las siguientes restricciones de todos los constrains:
 
     // Se limitan los índices de registro a la mitad inferior (x0–x15)
     constraint lower_registers {
-        rs1[4] == 1'b0;
+      	rs1[4] == 1'b0; //16 registros
         rs2[4] == 1'b0;
         rd[4]  == 1'b0;
         rd     != 5'b00000; // escrituras a x0 se descartan

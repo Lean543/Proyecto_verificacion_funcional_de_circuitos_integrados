@@ -3,8 +3,7 @@ class riscv_sequence extends uvm_sequence #(riscv_item);
     `uvm_object_utils(riscv_sequence)
 
     // ---- Configuracion que cada test ajusta antes de start() ----
-    // Minimo 400 instrucciones por programa (requisito de la guia del avance 3)
-    int numero_instrucciones = 400;
+    int num_instructions;
     int frecuencia_jalr      = 8; // pareja AUIPC+JALR en ~1 de cada N posiciones; 0 = nunca
     riscv_item::instr_type_e tipos_permitidos[$]; // vacio = todos los tipos (programa mixto)
 
@@ -51,7 +50,7 @@ class riscv_sequence extends uvm_sequence #(riscv_item);
         pc = 0;
         // pc y max_pc en el mismo marco: relativos al inicio del programa generado
         // (los offsets de branch/jump son relativos al PC, asi que el marco absoluto no importa)
-        ultimo_pc = (numero_instrucciones - 1) * 4;
+        ultimo_pc = (num_instructions - 1) * 4;
         max_target = -1;
 
         while (pc <= ultimo_pc) begin
