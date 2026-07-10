@@ -1,4 +1,4 @@
-vsim +access+r -sv_seed random;
+vsim +access+r -sv_seed random +UVM_TESTNAME=riscv_branch_test;
 
 run -all;
 

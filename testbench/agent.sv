@@ -24,6 +24,14 @@ class riscv_agent extends uvm_agent; //agente activo
       	monitor = riscv_monitor::type_id::create("monitor",this);
 
     endfunction
+  
+  task aplicar_reset(time duracion = 100);
+        driver.aplicar_reset(duracion);
+    endtask
+
+    task cambiar_clk(time periodo);
+        driver.cambiar_clk(periodo);
+    endtask
 
   	function void connect_phase(uvm_phase phase); //se llama sola cuando hay que conectar componentes
  

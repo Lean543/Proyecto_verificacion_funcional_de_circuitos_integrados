@@ -4,21 +4,17 @@
 
 module top;
 
-    logic clk;
-    logic res;
   	logic idle_dbg;
   	logic [31:0] addr;
   	logic [31:0] data;
 
-    ifc_riscv ifc_riscv_obj(clk);
-	
-  	//instacia del DUT
-    darksocv DUT (
-        .XCLK(clk),
-        .XRES(res)
-    );
+	ifc_riscv ifc_riscv_obj();
 
-    always #1 clk = ~clk;
+  	//instancia el dut
+    darksocv DUT(
+        .XCLK(ifc_riscv_obj.clk),
+        .XRES(ifc_riscv_obj.res)
+    );
 
     genvar i;
 	//conexiones de las señales del core con la interfaz
@@ -31,14 +27,35 @@ module top;
 
     assign idle_dbg = DUT.core0.IDLE;
     assign ifc_riscv_obj.idleproc = idle_dbg;
-  
+
   	assign addr = DUT.core0.IADDR;
     assign ifc_riscv_obj.addr = addr;
-  
-  	assign data = DUT.core0.IDATA;
+
+  	// XIDATA (no IDATA) es la instruccion ya latcheada en la etapa de decode:
+  	// esta exactamente alineada, ciclo a ciclo, con PC e IDLE/FLUSH, que es lo
+  	// que necesita el monitor para poblar item.pc y filtrar burbujas de flush.
+  	assign data = DUT.core0.XIDATA;
     assign ifc_riscv_obj.data = data;
-	
-  	//estimulos para el procesador que se envian por la interfaz virtual
+
+  	// PC arquitectonico de la instruccion en XIDATA (mismo registro que usa
+  	// el core internamente para AUIPC/branch target/JAL, ej. PCSIMM = PC+SIMM).
+  	assign ifc_riscv_obj.pc = DUT.core0.PC;
+
+  	// HLT: se asierta 1 ciclo durante el wait-state de un LOAD (declarado
+  	// en darksocv.v, no dentro de core0). XIDATA/PC quedan congelados
+  	// mientras HLT=1; el monitor lo usa para no capturar la misma
+  	// instruccion dos veces.
+  	assign ifc_riscv_obj.hlt = DUT.HLT;
+
+  	// Espejo de la memoria de datos del DUT, para verificar STORE (SW).
+  	genvar m;
+    generate
+        for(m=0; m<1024; m=m+1) begin
+            assign ifc_riscv_obj.mem[m] = DUT.MEM[m];
+        end
+    endgenerate
+
+  	/*//estimulos para el procesador que se envian por la interfaz virtual
     initial begin
       
       	$dumpfile("dump.vcd");
@@ -54,9 +71,14 @@ module top;
         #1000;
         res = 1'b1;
 
-    end
+    end*/
 
     initial begin
+      
+      	$dumpfile("dump.vcd");
+        $dumpvars(0, top);
+		$display("VCD enabled at time %0t", $time);
+		// #0; // asegura que $dumpvars se registre antes de avanzar
 		
       	uvm_config_db#(virtual ifc_riscv)::set(null, "*", "ifc_riscv_obj", ifc_riscv_obj); //da un acceso a la interfaz a cualquier componente (*)
 		//Ejecuta el test que se indica. Esto lo logra porque el test se ingresa en la fábrica.
